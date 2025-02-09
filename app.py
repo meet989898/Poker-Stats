@@ -5,7 +5,9 @@ import plotly.express as px
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv('player_statistics_by_session.csv')
+    df = pd.read_csv('player_statistics_by_session.csv')
+    df = df[df['Player'] != 'D_Anonymous']  # Exclude the player
+    return df
 
 data = load_data()
 
