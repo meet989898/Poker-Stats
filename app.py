@@ -28,8 +28,8 @@ if page == "Global Stats":
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Sessions", total_sessions)
     col2.metric("Total Buy-Ins", f"${total_buyins:,.2f}")
-    col3.metric("Total Payouts", f"${total_payouts:,.2f}")
-    col4.metric("Net Profit/Loss", f"${net_profit_loss:,.2f}")
+    # col3.metric("Total Payouts", f"${total_payouts:,.2f}")
+    # col4.metric("Net Profit/Loss", f"${net_profit_loss:,.2f}")
 
     # Leaderboard
     st.subheader("Leaderboard")
