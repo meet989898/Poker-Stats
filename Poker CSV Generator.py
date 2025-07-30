@@ -39,7 +39,7 @@ def convert_date_to_words(date_str):
 # Function to calculate per-player statistics for each session
 def calculate_session_statistics(bank_data):
 
-    anonymous_players = {'Dharmik': 'D_Anonymous'}
+    anonymous_players = {'Dharmik': 'D_Anonymous', 'Ananth': 'Pro'}
 
     # Initialize a DataFrame to store results
     session_results = []
