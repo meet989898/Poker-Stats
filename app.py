@@ -6,7 +6,7 @@ import plotly.express as px
 @st.cache_data
 def load_data():
     df = pd.read_csv('player_statistics_by_session.csv')
-    df = df[df['Player'] != 'D_Anonymous']  # Exclude the player
+    # df = df[df['Player'] != 'Danon']  # Exclude the player
     return df
 
 data = load_data()
@@ -31,18 +31,45 @@ if page == "Global Stats":
     # col3.metric("Total Payouts", f"${total_payouts:,.2f}")
     # col4.metric("Net Profit/Loss", f"${net_profit_loss:,.2f}")
 
-    # Leaderboard
-    st.subheader("Leaderboard")
+    # # Leaderboard
+    # st.subheader("Leaderboard")
+    # leaderboard = data.groupby('Player').agg({
+    #     'Session Number': 'nunique',  # Total sessions played per player
+    #     'BuyIns': 'sum',
+    #     'Payouts': 'sum',
+    #     'ProfitLoss': 'sum'
+    # }).reset_index().sort_values(by='ProfitLoss', ascending=False)
+    # leaderboard.rename(columns={'Session Number': 'Sessions Played'}, inplace=True)
+    # leaderboard['Profit Variance'] = data.groupby('Player')['ProfitLoss'].var().reset_index(drop=True)
+    # leaderboard['Median Profit'] = data.groupby('Player')['ProfitLoss'].median().reset_index(drop=True)
+    # st.dataframe(leaderboard.style.format({
+    #     'BuyIns': '${:,.2f}',
+    #     'Payouts': '${:,.2f}',
+    #     'ProfitLoss': '${:,.2f}',
+    #     'Profit Variance': '${:,.2f}',
+    #     'Median Profit': '${:,.2f}'
+    # }))
+
+    # Leaderboard Preparation
     leaderboard = data.groupby('Player').agg({
         'Session Number': 'nunique',  # Total sessions played per player
         'BuyIns': 'sum',
         'Payouts': 'sum',
         'ProfitLoss': 'sum'
-    }).reset_index().sort_values(by='ProfitLoss', ascending=False)
+    }).reset_index()
     leaderboard.rename(columns={'Session Number': 'Sessions Played'}, inplace=True)
+
+    # Additional Metrics
     leaderboard['Profit Variance'] = data.groupby('Player')['ProfitLoss'].var().reset_index(drop=True)
     leaderboard['Median Profit'] = data.groupby('Player')['ProfitLoss'].median().reset_index(drop=True)
-    st.dataframe(leaderboard.style.format({
+
+    # Split into regulars and one-timers
+    regulars = leaderboard[leaderboard['Sessions Played'] > 1].sort_values(by='ProfitLoss', ascending=False)
+    one_timers = leaderboard[leaderboard['Sessions Played'] == 1].sort_values(by='ProfitLoss', ascending=False)
+
+    # Display Regulars Leaderboard
+    st.subheader("🏆 Regular Players Leaderboard")
+    st.dataframe(regulars.style.format({
         'BuyIns': '${:,.2f}',
         'Payouts': '${:,.2f}',
         'ProfitLoss': '${:,.2f}',
@@ -50,27 +77,103 @@ if page == "Global Stats":
         'Median Profit': '${:,.2f}'
     }))
 
-    # Global Charts
-    st.subheader("Total Profit/Loss by Player")
-    profit_chart = px.bar(leaderboard, x='Player', y='ProfitLoss', title="Total Profit/Loss", text_auto=True)
-    st.plotly_chart(profit_chart)
+    # Display One-Time Players Leaderboard
+    st.subheader("🎲 One-Time Players")
+    st.dataframe(one_timers.style.format({
+        'BuyIns': '${:,.2f}',
+        'Payouts': '${:,.2f}',
+        'ProfitLoss': '${:,.2f}',
+        'Profit Variance': '${:,.2f}',
+        'Median Profit': '${:,.2f}'
+    }))
 
-    st.subheader("Total Buy-Ins by Player")
-    buyin_chart = px.pie(leaderboard, names='Player', values='BuyIns', title="Buy-In Contributions")
-    st.plotly_chart(buyin_chart)
+    # # Global Charts
+    # st.subheader("Total Profit/Loss by Player")
+    # profit_chart = px.bar(leaderboard, x='Player', y='ProfitLoss', title="Total Profit/Loss", text_auto=True)
+    # st.plotly_chart(profit_chart)
+    #
+    # st.subheader("Total Buy-Ins by Player")
+    # buyin_chart = px.pie(leaderboard, names='Player', values='BuyIns', title="Buy-In Contributions")
+    # st.plotly_chart(buyin_chart)
+
+    # Global Charts by Player Type
+    st.subheader("📊 Global Charts (Split by Player Type)")
+
+    # Regular Players Charts
+    st.markdown("### 🏆 Regular Players")
+    profit_chart_regulars = px.bar(
+        data_frame=regulars,
+        x='Player', y='ProfitLoss',
+        title="Profit/Loss - Regular Players",
+        text_auto=True, color='ProfitLoss'
+    )
+    st.plotly_chart(profit_chart_regulars)
+
+    buyin_chart_regulars = px.pie(
+        data_frame=regulars,
+        names='Player', values='BuyIns',
+        title="Buy-In Contributions - Regular Players"
+    )
+    st.plotly_chart(buyin_chart_regulars)
+
+    # One-Time Players Charts
+    st.markdown("### 🎲 One-Time Players")
+    profit_chart_onetimers = px.bar(
+        data_frame=one_timers,
+        x='Player', y='ProfitLoss',
+        title="Profit/Loss - One-Time Players",
+        text_auto=True, color='ProfitLoss'
+    )
+    st.plotly_chart(profit_chart_onetimers)
+
+    buyin_chart_onetimers = px.pie(
+        data_frame=one_timers,
+        names='Player', values='BuyIns',
+        title="Buy-In Contributions - One-Time Players"
+    )
+    st.plotly_chart(buyin_chart_onetimers)
+
+    # # Additional Global Stats
+    # st.subheader("Additional Global Stats")
+    # avg_buyins_per_session = data['BuyIns'].sum() / data['Session Number'].nunique()
+    # st.write(f"Average Buy-Ins Per Session: **${avg_buyins_per_session:,.2f}**")
+    #
+    # most_profitable_player = leaderboard.loc[leaderboard['ProfitLoss'].idxmax()]['Player']
+    # most_loss_player = leaderboard.loc[leaderboard['ProfitLoss'].idxmin()]['Player']
+    # st.write(f"Most Profitable Player: **{most_profitable_player}**")
+    # st.write(f"Player with Most Losses: **{most_loss_player}**")
+    #
+    # largest_pot = data.groupby('Session Number')['BuyIns'].sum().max()
+    # st.write(f"Largest Pot in a Single Session: **${largest_pot:,.2f}**")
 
     # Additional Global Stats
-    st.subheader("Additional Global Stats")
-    avg_buyins_per_session = data['BuyIns'].sum() / data['Session Number'].nunique()
-    st.write(f"Average Buy-Ins Per Session: **${avg_buyins_per_session:,.2f}**")
+    st.subheader("Additional Global Stats (Split by Player Type)")
 
-    most_profitable_player = leaderboard.loc[leaderboard['ProfitLoss'].idxmax()]['Player']
-    most_loss_player = leaderboard.loc[leaderboard['ProfitLoss'].idxmin()]['Player']
-    st.write(f"Most Profitable Player: **{most_profitable_player}**")
-    st.write(f"Player with Most Losses: **{most_loss_player}**")
+    # For Regulars
+    st.markdown("### 🏆 Regular Players")
+    avg_buyins_per_session_regular = regulars['BuyIns'].sum() / total_sessions
+    st.write(f"Average Buy-Ins Per Session: **${avg_buyins_per_session_regular:,.2f}**")
 
+    most_profitable_regular = regulars.loc[regulars['ProfitLoss'].idxmax()]['Player']
+    most_loss_regular = regulars.loc[regulars['ProfitLoss'].idxmin()]['Player']
+    st.write(f"Most Profitable Regular: **{most_profitable_regular}**")
+    st.write(f"Most Loss-Making Regular: **{most_loss_regular}**")
+
+    # For One-Timers
+    st.markdown("### 🎲 One-Time Players")
+    avg_buyins_onetimers = one_timers['BuyIns'].mean()
+    st.write(f"Average Buy-In (One-Time Players): **${avg_buyins_onetimers:,.2f}**")
+
+    most_profitable_onetimer = one_timers.loc[one_timers['ProfitLoss'].idxmax()]['Player']
+    most_loss_onetimer = one_timers.loc[one_timers['ProfitLoss'].idxmin()]['Player']
+    st.write(f"Most Profitable One-Timer: **{most_profitable_onetimer}**")
+    st.write(f"Most Loss-Making One-Timer: **{most_loss_onetimer}**")
+
+    # Shared
     largest_pot = data.groupby('Session Number')['BuyIns'].sum().max()
+    st.markdown("### 💼 Shared")
     st.write(f"Largest Pot in a Single Session: **${largest_pot:,.2f}**")
+
 
 elif page == "Player Stats":
     st.title("Player-Specific Statistics")
