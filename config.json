@@ -1,0 +1,15 @@
+﻿{
+  "input_file": "9c5fcd56-6f00-4cbc-8cb2-e42af340a63b.csv",
+  "player_output_file": "player_statistics_by_session.csv",
+  "session_output_file": "session_statistics_by_session.csv",
+  "quality_output_file": "data_quality_issues.csv",
+  "account_name": "Adv Plus Banking - 1686",
+  "host_player": "Meet",
+  "always_include_host": true,
+  "alias_map": {
+    "Dharmik": "Danon",
+    "Ananth": "Pro"
+  },
+  "balance_tolerance": 0.01,
+  "round_digits": 2
+}

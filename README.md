@@ -1,56 +1,71 @@
-# Poker Statistics Dashboard
+﻿# Poker Stats
 
-Visual Dashboard Website - [Poker Stats Website.](https://clayton-poker.streamlit.app/)
+A small pipeline + dashboard for tracking poker sessions from bank transaction CSV exports.
 
-This is an interactive web application built with [Streamlit](https://streamlit.io/) that provides detailed analytics for poker sessions. It is designed for players to track performance, visualize trends, and explore various statistics.
+## What this project now includes
 
-## Features
-- **Global Statistics**:
-  - Total sessions played, buy-ins, payouts, and net profit/loss.
-  - Leaderboard with profit variance and median profit per player.
-  - Charts for total profit/loss and buy-ins by player.
-  - Insights on the largest pot and most profitable/loss-heavy players.
+- Config-driven CSV generation (`config.json`)
+- Input validation and a data-quality report (`data_quality_issues.csv`)
+- Per-player session stats (`player_statistics_by_session.csv`)
+- Per-session summary stats (`session_statistics_by_session.csv`)
+- Enhanced Streamlit dashboard with:
+  - global leaderboard with ROI and consistency metrics
+  - session explorer page
+  - player analytics (rolling average, volatility, streaks)
+  - data-quality page
+  - CSV download for filtered leaderboard
 
-- **Player-Specific Statistics**:
-  - Detailed performance metrics for each player.
-  - Charts for profit/loss trends and cumulative performance over sessions.
-  - Longest winning and losing streaks per player.
-  - Session breakdown with detailed buy-in and payout data.
+## Files
 
-## Getting Started
-To run this app locally:
+- `Poker CSV Generator.py`: data pipeline and report generator
+- `app.py`: Streamlit dashboard
+- `config.json`: pipeline settings
+- `tests/test_generator.py`: pytest coverage for core logic
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/<your-username>/<your-repo>.git
-   cd <your-repo>
-   ```
+## Quick start
 
-2. **Install Dependencies**:
-   Ensure you have Python installed, then install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Create and activate a virtual environment.
+2. Install dependencies:
 
-3. **Run the App**:
-   ```bash
-   streamlit run app.py
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-4. **Access the App**:
-   Open your browser and navigate to `http://localhost:8501`.
+3. Generate stats CSV files:
 
-## Deployment
-The app is deployed using [Streamlit Community Cloud](https://streamlit.io/cloud). You can access it directly via the following link:
-**[Poker Statistics Dashboard](https://<your-streamlit-app-link>)**
+```bash
+python "Poker CSV Generator.py"
+```
 
-## File Structure
-- `app.py`: Main application file.
-- `player_statistics_by_session.csv`: Data file containing session statistics.
-- `requirements.txt`: Python dependencies.
+4. Start dashboard:
 
-## Contributing
-Contributions are welcome! Feel free to fork this repository and submit a pull request.
+```bash
+streamlit run app.py
+```
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## Config
+
+Edit `config.json` to change:
+
+- input file path
+- output file names
+- account name
+- host player
+- player aliases
+- balance mismatch tolerance
+
+## Tests
+
+Run:
+
+```bash
+pytest -q
+```
+
+## Cool feature ideas to add next
+
+- Session notes and tags (`cash game`, `tournament`, `special event`)
+- Buy-in tier analysis (`$5`, `$10`, `$20`) and performance per tier
+- Head-to-head overlap stats (who performs best when specific players are present)
+- Forecasting panel for expected player variance in next 5 sessions
+- Auto-ingest latest bank CSV from a watched folder
